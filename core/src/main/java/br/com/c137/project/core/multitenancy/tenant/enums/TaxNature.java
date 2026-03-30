@@ -1,0 +1,10 @@
+package br.com.c137.project.core.multitenancy.tenant.enums;
+
+public enum TaxNature {
+    SIMPLES_NACIONAL,
+    FIXED,
+    BANK_DEPOSIT,
+    ENFORCEMENT_SUSPENDED_BY_COURT_ORDER,
+    ENFORCEMENT_SUSPENDED_DUE_TO_ADMINISTRATIVE_PROCEEDINGS,
+    PARTIAL_EXEMPTION
+}

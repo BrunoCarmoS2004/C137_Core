@@ -1,4 +1,4 @@
-package br.com.c137.project.core.multitenancy.tenant.dtos.posts;
+package br.com.c137.project.core.multitenancy.tenant.dtos.puts;
 
 import br.com.c137.project.core.multitenancy.tenant.enums.CreatedFor;
 import br.com.c137.project.core.multitenancy.tenant.enums.NeighborhoodType;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.*;
 
 import java.util.UUID;
 
-public record AddressPostDTO(
+public record AddressPutDTO(
         @NotBlank(message = "Zip code is required")
         @Pattern(regexp = "^\\d{8}$", message = "Zip code must contain exactly 8 digits")
         String zipCode,
@@ -39,13 +39,7 @@ public record AddressPostDTO(
 
         @NotBlank(message = "City IBGE code is required")
         @Pattern(regexp = "^\\d+$", message = "IBGE code must be numeric")
-        String cityIbge,
-
-        @NotNull(message = "Owner type (Client/Supplier) is required")
-        CreatedFor createdFor,
-
-        @NotNull(message = "Owner ID is required")
-        UUID addressOf
+        String cityIbge
 ) {}
 
 

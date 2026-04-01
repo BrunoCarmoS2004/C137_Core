@@ -10,6 +10,7 @@ import br.com.c137.project.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.core.multitenancy.tenant.enums.InscriptionType;
 import br.com.c137.project.core.multitenancy.tenant.models.partner.Client;
 import br.com.c137.project.core.multitenancy.tenant.repositorys.ClientRepository;
+import br.com.c137.project.core.responses.ClientResponse;
 import br.com.c137.project.core.validations.ClientValidation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -105,12 +106,12 @@ class ClientServiceTest {
         when(getMapper.mapper(clientEntity)).thenReturn(clientGetDTO);
 
         // Act
-        ResponseEntity<ClientGetDTO> response = clientService.postClient(clientPostDTO);
+        ResponseEntity<ClientResponse> response = clientService.postClient(clientPostDTO);
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().id()).isEqualTo(clientId);
+        assertThat(response.getBody().uuid()).isEqualTo(clientId);
 
         // Verifica se as regras de negócio de unicidade foram chamadas
         verify(clientValidation).inscriptionExistsValidation(clientPostDTO.inscription());

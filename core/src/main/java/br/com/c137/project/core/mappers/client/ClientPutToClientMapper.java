@@ -7,7 +7,7 @@ import br.com.c137.project.core.multitenancy.tenant.models.partner.Client;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ClientPutToClientMapper implements MapperPut<ClientPutDTO, Client, Client> {
+public class ClientPutToClientMapper implements MapperPut<ClientPutDTO, Client> {
     @Override
     public Client mapper(ClientPutDTO clientPutDTO, Client client) {
         client.setName(clientPutDTO.name());

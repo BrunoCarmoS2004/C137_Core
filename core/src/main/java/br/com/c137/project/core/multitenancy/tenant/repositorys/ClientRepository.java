@@ -33,10 +33,10 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
     @Transactional
     @Modifying
     @Query("UPDATE Client c SET c.creationStatus = :creationStatus WHERE c.id = :id")
-    int updateCreationStatus(CreationStatus creationStatus, UUID id);
+    void updateCreationStatus(CreationStatus creationStatus, UUID id);
 
     @Transactional
     @Modifying
     @Query("UPDATE Client c SET c.entityStatus = :entityStatus WHERE c.id = :id")
-    int updateEntityStatus(EntityStatus entityStatus, UUID id);
+    void updateEntityStatus(EntityStatus entityStatus, UUID id);
 }

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS unit_measures (
     id BINARY(16) PRIMARY KEY,
     acronym VARCHAR(10) NOT NULL UNIQUE,
     description VARCHAR(100) NOT NULL,
-    created_by_id BINARY(16) NOT NULL,
+    created_by_id BINARY(16) NOT NULL DEFAULT 0x11111111111111111111111111111111,
     entity_status VARCHAR(20) NOT NULL
     ) ENGINE=InnoDB;
 
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS tax_rules (
     iss DOUBLE NOT NULL,
     allows_retention BOOLEAN DEFAULT FALSE,
     allows_deduction BOOLEAN DEFAULT FALSE,
-    created_by_id BINARY(16) NOT NULL,
+    created_by_id BINARY(16) NOT NULL DEFAULT 0x11111111111111111111111111111111,
     created_at DATETIME NOT NULL,
     entity_status VARCHAR(20) NOT NULL,
     CONSTRAINT fk_tax_rule_cnae FOREIGN KEY (cnae_id) REFERENCES cnaes(id)
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS suppliers (
     state_registration VARCHAR(50),
     state_registration_date DATE,
     municipal_registration VARCHAR(50),
-    created_by_id BINARY(16) NOT NULL,
+    created_by_id BINARY(16) NOT NULL DEFAULT 0x11111111111111111111111111111111,
     created_at DATETIME NOT NULL,
     entity_status VARCHAR(20) NOT NULL
     ) ENGINE=InnoDB;
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS services_products (
     tax_rule_id BINARY(16) NOT NULL,
     supplier_id BINARY(16),
     description TEXT,
-    created_by_id BINARY(16) NOT NULL,
+    created_by_id BINARY(16) NOT NULL DEFAULT 0x11111111111111111111111111111111,
     created_at DATETIME NOT NULL,
     entity_status VARCHAR(20) NOT NULL,
     CONSTRAINT fk_sp_unit FOREIGN KEY (unit_measure_id) REFERENCES unit_measures(id),
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS services_products (
 
 CREATE TABLE IF NOT EXISTS addresses (
     id BINARY(16) PRIMARY KEY,
-    zip_code VARCHAR(15) NOT NULL,
+    zip_code VARCHAR(8) NOT NULL,
     street_address VARCHAR(255) NOT NULL,
     number INT NOT NULL,
     neighborhood_type VARCHAR(50) NOT NULL,
@@ -113,9 +113,10 @@ CREATE TABLE IF NOT EXISTS addresses (
     complement VARCHAR(100),
     state CHAR(2) NOT NULL,
     city VARCHAR(100) NOT NULL,
-    created_for VARCHAR(20) NOT NULL,
+    cityIbge VARCHAR(50) NOT NULL,
+    created_for VARCHAR(30) NOT NULL,
     address_of_id BINARY(16) NOT NULL,
-    created_by_id BINARY(16) NOT NULL,
+    created_by_id BINARY(16) NOT NULL DEFAULT 0x11111111111111111111111111111111,
     created_at DATETIME NOT NULL,
     entity_status VARCHAR(20) NOT NULL
     ) ENGINE=InnoDB;
@@ -129,7 +130,7 @@ CREATE TABLE IF NOT EXISTS contacts (
     send_invoice_payment_slip BOOLEAN DEFAULT FALSE,
     created_for VARCHAR(20) NOT NULL,
     contact_of_id BINARY(16) NOT NULL,
-    created_by_id BINARY(16) NOT NULL,
+    created_by_id BINARY(16) NOT NULL DEFAULT 0x11111111111111111111111111111111,
     created_at DATETIME NOT NULL,
     entity_status VARCHAR(20) NOT NULL
     ) ENGINE=InnoDB;

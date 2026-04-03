@@ -1,14 +1,11 @@
-package br.com.c137.project.core.multitenancy.tenant.dtos.posts;
+package br.com.c137.project.core.multitenancy.tenant.dtos.puts;
 
-import br.com.c137.project.core.multitenancy.tenant.enums.CreatedFor;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.UUID;
-
-public record ContactPostDTO(
+public record ContactPutDTO(
         @NotBlank(message = "Contact name is required")
         @Size(min = 2, max = 150, message = "Name must be between 2 and 150 characters")
         String name,
@@ -26,12 +23,6 @@ public record ContactPostDTO(
         String position,
 
         @NotNull(message = "Please specify if invoice/payment slips should be sent")
-        Boolean sendInvoicePaymentSlip,
-
-        @NotNull(message = "Owner definition (Client/Supplier) is required")
-        CreatedFor createdFor,
-
-        @NotNull(message = "Owner ID (contactOf) is required")
-        UUID contactOf
+        Boolean sendInvoicePaymentSlip
 ) {
 }

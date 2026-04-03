@@ -1,6 +1,7 @@
 package br.com.c137.project.core.multitenancy.tenant.dtos.gets;
 
 import br.com.c137.project.core.multitenancy.tenant.enums.CreatedFor;
+import br.com.c137.project.core.multitenancy.tenant.enums.EntityStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,5 +23,7 @@ public record ContactGetDTO(
 
         CreatedFor createdFor,
 
-        UUID contactOf) {
+        UUID contactOf,
+
+        EntityStatus entityStatus) {
 }

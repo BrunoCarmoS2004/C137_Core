@@ -55,6 +55,16 @@ public class Contact {
     @Column(name = "entity_status", nullable = false)
     private EntityStatus entityStatus;
 
+    public Contact(String name, String telephone, String email, String position, Boolean sendInvoicePaymentSlip, CreatedFor createdFor, UUID contactOf) {
+        this.name = name;
+        this.telephone = telephone;
+        this.email = email;
+        this.position = position;
+        this.sendInvoicePaymentSlip = sendInvoicePaymentSlip;
+        this.createdFor = createdFor;
+        this.contactOf = contactOf;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

@@ -48,7 +48,7 @@ public class Address {
     @Column(nullable = false)
     private String city;
 
-    @Column(nullable = false)
+    @Column(name = "city_ibge", nullable = false)
     private String cityIbge;
 
 //    @ManyToOne

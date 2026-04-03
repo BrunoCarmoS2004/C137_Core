@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS suppliers (
     municipal_registration VARCHAR(50),
     created_by_id BINARY(16) NOT NULL DEFAULT 0x11111111111111111111111111111111,
     created_at DATETIME NOT NULL,
+    creation_status VARCHAR(20) NOT NULL,
     entity_status VARCHAR(20) NOT NULL
     ) ENGINE=InnoDB;
 
@@ -113,7 +114,7 @@ CREATE TABLE IF NOT EXISTS addresses (
     complement VARCHAR(100),
     state CHAR(2) NOT NULL,
     city VARCHAR(100) NOT NULL,
-    cityIbge VARCHAR(50) NOT NULL,
+    city_ibge VARCHAR(50) NOT NULL,
     created_for VARCHAR(30) NOT NULL,
     address_of_id BINARY(16) NOT NULL,
     created_by_id BINARY(16) NOT NULL DEFAULT 0x11111111111111111111111111111111,

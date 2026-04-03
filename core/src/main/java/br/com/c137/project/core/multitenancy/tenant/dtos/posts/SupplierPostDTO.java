@@ -1,33 +1,43 @@
 package br.com.c137.project.core.multitenancy.tenant.dtos.posts;
 
 import br.com.c137.project.core.multitenancy.tenant.enums.InscriptionType;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 
 public record SupplierPostDTO(
-        //TODO, COLOCAR AS MENSAGENS EM INGLES
-        @NotBlank(message = "O nome é obrigatório")
+        @NotBlank(message = "Name is required")
+        @Size(min = 3, max = 100, message = "Name must be between 3 and 100 characters")
         String name,
 
-        @NotNull(message = "O tipo de inscrição é obrigatório")
+        @NotBlank(message = "Inscription is required")
+        // Exemplo: impede caracteres especiais se for apenas números
+        @Pattern(regexp = "\\d+", message = "Inscription must contain only numbers")
+        String inscription,
+
+        @NotNull(message = "Inscription type is required")
         InscriptionType inscriptionType,
 
-        @NotNull(message = "A data de inscrição é obrigatória")
+        @NotNull(message = "Inscription date is required")
+        @PastOrPresent(message = "Inscription date cannot be in the future")
         LocalDate inscriptionDate,
 
-        @NotBlank(message = "O email é obrigatório")
-        @Email(message = "Email inválido")
+        @NotBlank(message = "Email is required")
+        @Email(message = "Invalid email format")
         String email,
 
-        @NotBlank(message = "O telefone é obrigatório")
+        @NotBlank(message = "Telephone is required")
         String telephone,
 
         String cellPhone,
+
+        @Size(max = 20, message = "Accounting account is too long")
         String accountingAccount,
+
         String stateRegistration,
+
+        @PastOrPresent(message = "State registration date cannot be in the future")
         LocalDate stateRegistrationDate,
+
         String municipalRegistration) {
 }

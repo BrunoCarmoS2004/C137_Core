@@ -2,25 +2,29 @@ package br.com.c137.project.core.services;
 
 
 import br.com.c137.project.core.exceptions.NotFoundException;
-import br.com.c137.project.core.mappers.address.AddressAddressToGetMapper;
-import br.com.c137.project.core.mappers.address.AddressPostToAddressMapper;
-import br.com.c137.project.core.mappers.address.AddressPutToAddressMapper;
+import br.com.c137.project.core.mappers.AddressMapper;
 import br.com.c137.project.core.multitenancy.tenant.dtos.gets.AddressGetDTO;
+import br.com.c137.project.core.multitenancy.tenant.dtos.gets.ClientGetDTO;
 import br.com.c137.project.core.multitenancy.tenant.dtos.posts.AddressPostDTO;
 import br.com.c137.project.core.multitenancy.tenant.dtos.puts.AddressPutDTO;
+import br.com.c137.project.core.multitenancy.tenant.enums.CreatedFor;
 import br.com.c137.project.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.core.multitenancy.tenant.models.Address;
 import br.com.c137.project.core.multitenancy.tenant.repositorys.AddressRepository;
-import br.com.c137.project.core.responses.AddressResponse;
+import br.com.c137.project.core.responses.ResponsePayload;
 import br.com.c137.project.core.validations.AddressValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+
+import static br.com.c137.project.core.utils.ServiceUtils.createResponse;
+import static br.com.c137.project.core.utils.ServiceUtils.pageHasContent;
 
 @Service
 public class AddressService {
@@ -28,19 +32,16 @@ public class AddressService {
     private AddressRepository addressRepository;
 
     @Autowired
-    private AddressPostToAddressMapper addressPostToAddressMapper;
-
-    @Autowired
-    private AddressAddressToGetMapper addressAddressToGetMapper;
-
-    @Autowired
-    private AddressPutToAddressMapper addressPutToAddressMapper;
+    private AddressMapper addressMapper;
 
     @Autowired
     private AddressValidation addressValidation;
 
     @Autowired
     private ClientService clientService;
+
+    @Autowired
+    private SupplierService supplierService;
 
     private final String addressNotFoundMessage = "Address not found";
 
@@ -50,37 +51,36 @@ public class AddressService {
 
     private final String addressUpdatedMessage = "Address Updated";
 
-    public ResponseEntity<Page<AddressGetDTO>> getAll(Pageable pageable) {
+    public ResponseEntity<?> getAll(Pageable pageable, PagedResourcesAssembler<AddressGetDTO> assembler) {
         Page<AddressGetDTO> addresses = addressRepository.findBy(pageable, AddressGetDTO.class);
-        return pageHasContent(addresses);
+        return pageHasContent(addresses, assembler);
     }
 
-    public ResponseEntity<Page<AddressGetDTO>> getAllByAddressOf(UUID id, Pageable pageable) {
+    public ResponseEntity<?> getAllByAddressOf(UUID id, Pageable pageable, PagedResourcesAssembler<AddressGetDTO> assembler) {
         Page<AddressGetDTO> addresses = addressRepository.findAllByAddressOf(id, pageable);
-        return pageHasContent(addresses);
+        return pageHasContent(addresses, assembler);
     }
 
-    public ResponseEntity<AddressResponse> getAddressById(UUID id) {
+    public ResponseEntity<ResponsePayload<AddressGetDTO>> getAddressById(UUID id) {
         AddressGetDTO addressGetDTO = addressRepository.findById(id, AddressGetDTO.class).orElseThrow(() -> new NotFoundException(addressNotFoundMessage));
-        return response(HttpStatus.OK, addressGetDTO, addressFoundMessage);
+        return createResponse(HttpStatus.OK, addressGetDTO.id(), addressGetDTO, addressFoundMessage);
     }
 
-    public ResponseEntity<AddressResponse> postAddress(AddressPostDTO addressPostDTO) {
-        //TODO, TROCAR PARA O SUPPLIER QUANDO FOR SUPPLIER O CREATED OF SUPPLIER
-        clientService.clientExistsValidation(addressPostDTO.addressOf());
-        Address address = addressPostToAddressMapper.mapper(addressPostDTO);
+    public ResponseEntity<ResponsePayload<AddressGetDTO>> postAddress(AddressPostDTO addressPostDTO) {
+        existsCreatedForEntity(addressPostDTO);
+        Address address = addressMapper.postToAddress(addressPostDTO);
         address = addressRepository.save(address);
-        clientService.updateCreationStuatus(addressPostDTO.addressOf());
-        AddressGetDTO addressGetDTO = addressAddressToGetMapper.mapper(address);
-        return response(HttpStatus.CREATED, addressGetDTO, addressCreatedMessage);
+        updateCreatedForEntityStatus(addressPostDTO);
+        AddressGetDTO addressGetDTO = addressMapper.addressToAddressGetDTO(address);
+        return createResponse(HttpStatus.CREATED, addressGetDTO.id(), addressGetDTO, addressCreatedMessage);
     }
 
-    public ResponseEntity<AddressResponse> putAddress(UUID id, AddressPutDTO addressPostDTO) {
+    public ResponseEntity<ResponsePayload<AddressGetDTO>> putAddress(UUID id, AddressPutDTO addressPostDTO) {
         Address address = addressRepository.findById(id).orElseThrow(() -> new NotFoundException(addressNotFoundMessage));
-        address = addressPutToAddressMapper.mapper(addressPostDTO, address);
+        address = addressMapper.putToAddress(addressPostDTO, address);
         address = addressRepository.save(address);
-        AddressGetDTO addressGetDTO = addressAddressToGetMapper.mapper(address);
-        return response(HttpStatus.OK, addressGetDTO, addressUpdatedMessage);
+        AddressGetDTO addressGetDTO = addressMapper.addressToAddressGetDTO(address);
+        return createResponse(HttpStatus.OK, addressGetDTO.id(), addressGetDTO, addressUpdatedMessage);
     }
 
     public ResponseEntity<Void> deleteAddress(UUID id) {
@@ -95,18 +95,19 @@ public class AddressService {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    private ResponseEntity<Page<AddressGetDTO>> pageHasContent(Page<AddressGetDTO> addresses) {
-        if (!addresses.hasContent()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    private void updateCreatedForEntityStatus(AddressPostDTO addressPostDTO) {
+        if (addressPostDTO.createdFor() == CreatedFor.CLIENT){
+            clientService.updateCreationStuatus(addressPostDTO.addressOf());
+        } else if (addressPostDTO.createdFor() == CreatedFor.SUPPLIER) {
+            supplierService.updateCreationStuatus(addressPostDTO.addressOf());
         }
-        return ResponseEntity.status(HttpStatus.OK).body(addresses);
     }
 
-    private ResponseEntity<AddressResponse> response(HttpStatus httpStatus, AddressGetDTO addressGetDTO, String message) {
-        return ResponseEntity.status(httpStatus).body(new AddressResponse(
-                addressGetDTO.id(),
-                message,
-                addressGetDTO
-        ));
+    private void existsCreatedForEntity(AddressPostDTO addressPostDTO) {
+        if (addressPostDTO.createdFor() == CreatedFor.CLIENT){
+            clientService.clientExistsValidation(addressPostDTO.addressOf());
+        } else if (addressPostDTO.createdFor() == CreatedFor.SUPPLIER) {
+            supplierService.supplierExistsValidation(addressPostDTO.addressOf());
+        }
     }
 }

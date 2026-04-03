@@ -1,8 +1,7 @@
 package br.com.c137.project.core.services;
 
 import br.com.c137.project.core.exceptions.NotFoundException;
-import br.com.c137.project.core.mappers.client.ClientClientToGetMapper;
-import br.com.c137.project.core.mappers.client.ClientPostToClientMapper;
+import br.com.c137.project.core.mappers.ClientMapper;
 import br.com.c137.project.core.multitenancy.tenant.dtos.gets.ClientGetDTO;
 import br.com.c137.project.core.multitenancy.tenant.dtos.posts.ClientPostDTO;
 import br.com.c137.project.core.multitenancy.tenant.enums.CreationStatus;
@@ -10,7 +9,7 @@ import br.com.c137.project.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.core.multitenancy.tenant.enums.InscriptionType;
 import br.com.c137.project.core.multitenancy.tenant.models.partner.Client;
 import br.com.c137.project.core.multitenancy.tenant.repositorys.ClientRepository;
-import br.com.c137.project.core.responses.ClientResponse;
+import br.com.c137.project.core.responses.ResponsePayload;
 import br.com.c137.project.core.validations.ClientValidation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -32,7 +32,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,10 +47,10 @@ class ClientServiceTest {
     private ClientValidation clientValidation;
 
     @Mock
-    private ClientPostToClientMapper postMapper;
+    private ClientMapper clientMapper;
 
     @Mock
-    private ClientClientToGetMapper getMapper;
+    private PagedResourcesAssembler<ClientGetDTO> assembler;
 
     @InjectMocks
     private ClientService clientService;
@@ -101,17 +100,17 @@ class ClientServiceTest {
     @DisplayName("Deve salvar um cliente com sucesso quando validações passarem")
     void postClient_ShouldReturnCreated_WhenValidData() {
         // Arrange
-        when(postMapper.mapper(clientPostDTO)).thenReturn(clientEntity);
+        when(clientMapper.postToClient(clientPostDTO)).thenReturn(clientEntity);
         when(clientRepository.save(any(Client.class))).thenReturn(clientEntity);
-        when(getMapper.mapper(clientEntity)).thenReturn(clientGetDTO);
+        when(clientMapper.clientToClientGetDTO(clientEntity)).thenReturn(clientGetDTO);
 
         // Act
-        ResponseEntity<ClientResponse> response = clientService.postClient(clientPostDTO);
+        ResponseEntity<ResponsePayload<ClientGetDTO>> response = clientService.postClient(clientPostDTO);
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().uuid()).isEqualTo(clientId);
+        assertThat(response.getBody().id()).isEqualTo(clientId);
 
         // Verifica se as regras de negócio de unicidade foram chamadas
         verify(clientValidation).inscriptionExistsValidation(clientPostDTO.inscription());
@@ -139,7 +138,7 @@ class ClientServiceTest {
         when(clientRepository.findBy(pageable, ClientGetDTO.class)).thenReturn(Page.empty());
 
         // Act
-        ResponseEntity<Page<ClientGetDTO>> response = clientService.getAll(pageable);
+        ResponseEntity<?> response = clientService.getAll(pageable, assembler);
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);

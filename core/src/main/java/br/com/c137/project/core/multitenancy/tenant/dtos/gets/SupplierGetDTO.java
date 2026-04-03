@@ -15,6 +15,8 @@ public record SupplierGetDTO(
 
         String name,
 
+        String inscription,
+
         InscriptionType inscriptionType,
 
         LocalDate inscriptionDate,

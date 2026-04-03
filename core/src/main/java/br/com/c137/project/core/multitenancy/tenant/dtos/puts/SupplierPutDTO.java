@@ -1,17 +1,16 @@
-package br.com.c137.project.core.multitenancy.tenant.dtos.posts;
+package br.com.c137.project.core.multitenancy.tenant.dtos.puts;
 
 import br.com.c137.project.core.multitenancy.tenant.enums.InscriptionType;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 
-public record ClientPostDTO(
+public record SupplierPutDTO(
         @NotBlank(message = "Name is required")
         @Size(min = 3, max = 100, message = "Name must be between 3 and 100 characters")
         String name,
 
         @NotBlank(message = "Inscription is required")
-        // Exemplo: impede caracteres especiais se for apenas números
         @Pattern(regexp = "\\d+", message = "Inscription must contain only numbers")
         String inscription,
 

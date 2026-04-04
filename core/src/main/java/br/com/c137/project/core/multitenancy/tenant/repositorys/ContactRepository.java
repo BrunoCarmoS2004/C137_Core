@@ -27,4 +27,7 @@ public interface ContactRepository extends JpaRepository<Contact, UUID> {
     @Query("UPDATE Contact c SET c.entityStatus = :entityStatus WHERE c.id = :id")
     void updateEntityStatus(EntityStatus entityStatus, UUID id);
 
+    boolean existsByTelephoneAndIdNot(String telephone, UUID id);
+
+    boolean existsByTelephone(String telephone);
 }

@@ -1,6 +1,5 @@
 package br.com.c137.project.core.controllers;
 
-import br.com.c137.project.core.multitenancy.tenant.dtos.gets.AddressGetDTO;
 import br.com.c137.project.core.multitenancy.tenant.dtos.gets.ContactGetDTO;
 import br.com.c137.project.core.multitenancy.tenant.dtos.posts.ContactPostDTO;
 import br.com.c137.project.core.multitenancy.tenant.dtos.puts.ContactPutDTO;
@@ -8,7 +7,6 @@ import br.com.c137.project.core.responses.ResponsePayload;
 import br.com.c137.project.core.services.ContactService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;

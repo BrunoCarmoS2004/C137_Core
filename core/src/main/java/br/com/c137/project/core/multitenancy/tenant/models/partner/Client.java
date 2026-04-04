@@ -1,12 +1,13 @@
 package br.com.c137.project.core.multitenancy.tenant.models.partner;
 
-import br.com.c137.project.core.multitenancy.tenant.dtos.puts.ClientPutDTO;
 import br.com.c137.project.core.multitenancy.tenant.enums.InscriptionType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;

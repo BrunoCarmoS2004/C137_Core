@@ -1,6 +1,5 @@
 package br.com.c137.project.core.utils;
 
-import br.com.c137.project.core.multitenancy.tenant.dtos.gets.ClientGetDTO;
 import br.com.c137.project.core.responses.ResponsePayload;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;

@@ -4,7 +4,6 @@ import br.com.c137.project.core.multitenancy.tenant.enums.CreatedFor;
 import br.com.c137.project.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.core.multitenancy.tenant.enums.NeighborhoodType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

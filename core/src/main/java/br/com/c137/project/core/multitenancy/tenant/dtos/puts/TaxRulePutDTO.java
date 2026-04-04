@@ -1,13 +1,13 @@
-package br.com.c137.project.core.multitenancy.tenant.dtos.posts;
+ package br.com.c137.project.core.multitenancy.tenant.dtos.puts;
 
-import br.com.c137.project.core.multitenancy.tenant.enums.Enforceability;
-import br.com.c137.project.core.multitenancy.tenant.enums.TaxNature;
-import br.com.c137.project.core.multitenancy.tenant.enums.TaxType;
-import jakarta.validation.constraints.*;
+ import br.com.c137.project.core.multitenancy.tenant.enums.Enforceability;
+ import br.com.c137.project.core.multitenancy.tenant.enums.TaxNature;
+ import br.com.c137.project.core.multitenancy.tenant.enums.TaxType;
+ import jakarta.validation.constraints.*;
 
-import java.time.LocalDate;
+ import java.time.LocalDate;
 
-public record TaxRulePostDTO(
+ public record TaxRulePutDTO(
         @NotBlank(message = "Service code is required")
         @Size(max = 50, message = "Service code is too long")
         String serviceCode,

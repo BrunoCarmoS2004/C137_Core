@@ -1,10 +1,7 @@
 package br.com.c137.project.core.multitenancy.tenant.dtos.puts;
 
-import br.com.c137.project.core.multitenancy.tenant.enums.CreatedFor;
 import br.com.c137.project.core.multitenancy.tenant.enums.NeighborhoodType;
 import jakarta.validation.constraints.*;
-
-import java.util.UUID;
 
 public record AddressPutDTO(
         @NotBlank(message = "Zip code is required")

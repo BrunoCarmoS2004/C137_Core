@@ -26,7 +26,7 @@ public class Partner {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String inscription;
 
     @Enumerated(EnumType.STRING)

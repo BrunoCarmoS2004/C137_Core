@@ -4,7 +4,6 @@ package br.com.c137.project.core.services;
 import br.com.c137.project.core.exceptions.NotFoundException;
 import br.com.c137.project.core.mappers.AddressMapper;
 import br.com.c137.project.core.multitenancy.tenant.dtos.gets.AddressGetDTO;
-import br.com.c137.project.core.multitenancy.tenant.dtos.gets.ClientGetDTO;
 import br.com.c137.project.core.multitenancy.tenant.dtos.posts.AddressPostDTO;
 import br.com.c137.project.core.multitenancy.tenant.dtos.puts.AddressPutDTO;
 import br.com.c137.project.core.multitenancy.tenant.enums.CreatedFor;
@@ -67,6 +66,7 @@ public class AddressService {
     }
 
     public ResponseEntity<ResponsePayload<AddressGetDTO>> postAddress(AddressPostDTO addressPostDTO) {
+        addressValidation.zipCodeAndNumberExistsValidation(addressPostDTO.zipCode(), addressPostDTO.number());
         existsCreatedForEntity(addressPostDTO);
         Address address = addressMapper.postToAddress(addressPostDTO);
         address = addressRepository.save(address);
@@ -75,9 +75,10 @@ public class AddressService {
         return createResponse(HttpStatus.CREATED, addressGetDTO.id(), addressGetDTO, addressCreatedMessage);
     }
 
-    public ResponseEntity<ResponsePayload<AddressGetDTO>> putAddress(UUID id, AddressPutDTO addressPostDTO) {
+    public ResponseEntity<ResponsePayload<AddressGetDTO>> putAddress(UUID id, AddressPutDTO addressPutDTO) {
+        addressValidation.zipCodeAndNumberInOtherIdExistsValidation(addressPutDTO.zipCode(), addressPutDTO.number(), id);
         Address address = addressRepository.findById(id).orElseThrow(() -> new NotFoundException(addressNotFoundMessage));
-        address = addressMapper.putToAddress(addressPostDTO, address);
+        address = addressMapper.putToAddress(addressPutDTO, address);
         address = addressRepository.save(address);
         AddressGetDTO addressGetDTO = addressMapper.addressToAddressGetDTO(address);
         return createResponse(HttpStatus.OK, addressGetDTO.id(), addressGetDTO, addressUpdatedMessage);

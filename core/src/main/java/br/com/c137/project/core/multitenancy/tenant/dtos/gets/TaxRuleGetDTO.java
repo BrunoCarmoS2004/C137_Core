@@ -1,11 +1,10 @@
 package br.com.c137.project.core.multitenancy.tenant.dtos.gets;
 
+import br.com.c137.project.core.multitenancy.mastertenant.models.Cnae;
 import br.com.c137.project.core.multitenancy.tenant.enums.Enforceability;
 import br.com.c137.project.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.core.multitenancy.tenant.enums.TaxNature;
 import br.com.c137.project.core.multitenancy.tenant.enums.TaxType;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -17,7 +16,7 @@ public record TaxRuleGetDTO(
 
         String description,
 
-        UUID cnaeId,
+        Cnae cnae,
 
         String municipalCode,
 

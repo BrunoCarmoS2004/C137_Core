@@ -25,4 +25,8 @@ public interface AddressRepository extends JpaRepository<Address, UUID> {
     @Modifying
     @Query("UPDATE Address a SET a.entityStatus = :entityStatus WHERE a.id = :id")
     void updateEntityStatus(EntityStatus entityStatus, UUID id);
+
+    boolean existsByZipCodeAndNumber(String zipCode, Integer number);
+
+    boolean existsByZipCodeAndNumberAndIdNot(String zipCode, Integer number, UUID id);
 }

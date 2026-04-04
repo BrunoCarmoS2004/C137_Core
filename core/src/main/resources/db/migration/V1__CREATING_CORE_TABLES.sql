@@ -10,8 +10,9 @@ CREATE TABLE IF NOT EXISTS cnaes (
 
 CREATE TABLE IF NOT EXISTS unit_measures (
     id BINARY(16) PRIMARY KEY,
-    acronym VARCHAR(10) NOT NULL UNIQUE,
+    acronym VARCHAR(6) NOT NULL UNIQUE,
     description VARCHAR(100) NOT NULL,
+    created_at DATETIME NOT NULL,
     created_by_id BINARY(16) NOT NULL DEFAULT 0x11111111111111111111111111111111,
     entity_status VARCHAR(20) NOT NULL
     ) ENGINE=InnoDB;
@@ -21,7 +22,7 @@ CREATE TABLE IF NOT EXISTS tax_rules (
     service_code VARCHAR(50) NOT NULL,
     description VARCHAR(255) NOT NULL,
     cnae_id BIGINT NOT NULL,
-    municipal_code VARCHAR(50) NOT NULL,
+    municipal_code VARCHAR(7) NOT NULL,
     municipal_activity_code VARCHAR(50) NOT NULL,
     national_tax_code VARCHAR(50) NOT NULL,
     nbs VARCHAR(50) NOT NULL,
@@ -89,7 +90,7 @@ CREATE TABLE IF NOT EXISTS services_products (
     id BINARY(16) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(20) NOT NULL,
-    code VARCHAR(100) NOT NULL UNIQUE,
+    code VARCHAR(60) NOT NULL UNIQUE,
     price DECIMAL(19, 2) NOT NULL,
     cost DECIMAL(19, 2),
     unit_measure_id BINARY(16),

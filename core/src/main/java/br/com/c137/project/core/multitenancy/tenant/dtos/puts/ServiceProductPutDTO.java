@@ -1,4 +1,4 @@
-package br.com.c137.project.core.multitenancy.tenant.dtos.posts;
+package br.com.c137.project.core.multitenancy.tenant.dtos.puts;
 
 import br.com.c137.project.core.multitenancy.tenant.enums.ServiceProductType;
 import jakarta.validation.constraints.*;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public record ServiceProductPostDTO(
+public record ServiceProductPutDTO(
         @NotBlank(message = "Name is required")
         @Size(max = 255, message = "Name must not exceed 255 characters")
         String name,

@@ -1,10 +1,10 @@
-package br.com.c137.project.core.multitenancy.tenant.dtos.posts;
+package br.com.c137.project.core.multitenancy.tenant.dtos.puts;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record UnitMeasurePostDTO(
+public record UnitMeasurePutDTO(
         @NotBlank(message = "Acronym is required")
         @Size(min = 1, max = 6, message = "Acronym must be between 1 and 6 characters")
         @Pattern(regexp = "^[A-Z0-9]{1,6}$", message = "Acronym must be uppercase alphanumeric without spaces")

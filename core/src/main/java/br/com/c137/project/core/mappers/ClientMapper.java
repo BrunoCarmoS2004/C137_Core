@@ -6,7 +6,6 @@ import br.com.c137.project.core.multitenancy.tenant.dtos.puts.ClientPutDTO;
 import br.com.c137.project.core.multitenancy.tenant.models.partner.Client;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
-import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 public interface ClientMapper {

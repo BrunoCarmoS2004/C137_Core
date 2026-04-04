@@ -23,7 +23,7 @@ public class Cnae {
     private String type;
     @Column(name = "sub_classe")
     private String subType;
-    @Column(name = "demoninacao")
+    @Column(name = "denominacao")
     private String denomination;
 }
 

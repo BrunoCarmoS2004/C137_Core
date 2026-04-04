@@ -3,7 +3,6 @@ package br.com.c137.project.core.multitenancy.tenant.models.partner;
 import br.com.c137.project.core.multitenancy.tenant.enums.InscriptionType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

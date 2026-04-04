@@ -1,7 +1,8 @@
 package br.com.c137.project.core.validations;
 
+import br.com.c137.project.core.exceptions.NotFoundException;
+import br.com.c137.project.core.exceptions.ValidationException;
 import br.com.c137.project.core.multitenancy.tenant.repositorys.SupplierRepository;
-import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,7 @@ public class SupplierValidation {
     public void supplierExistsValidation(UUID id){
         boolean exist = supplierRepository.existsById(id);
         if (!exist){
-            throw new ValidationException(supplierNotExistMessage);
+            throw new NotFoundException(supplierNotExistMessage);
         }
     }
 

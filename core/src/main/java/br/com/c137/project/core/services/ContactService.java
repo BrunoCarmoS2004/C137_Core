@@ -5,6 +5,7 @@ import br.com.c137.project.core.mappers.ContactMapper;
 import br.com.c137.project.core.multitenancy.tenant.dtos.gets.ContactGetDTO;
 import br.com.c137.project.core.multitenancy.tenant.dtos.posts.ContactPostDTO;
 import br.com.c137.project.core.multitenancy.tenant.dtos.puts.ContactPutDTO;
+import br.com.c137.project.core.multitenancy.tenant.enums.CreatedFor;
 import br.com.c137.project.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.core.multitenancy.tenant.models.Contact;
 import br.com.c137.project.core.multitenancy.tenant.repositorys.ContactRepository;
@@ -37,6 +38,9 @@ public class ContactService {
     @Autowired
     private ClientService clientService;
 
+    @Autowired
+    private SupplierService supplierService;
+
     private final String contactNotFoundMessage = "Contact not found";
 
     private final String contactCreatedMessage = "Contact created";
@@ -61,15 +65,17 @@ public class ContactService {
     }
 
     public ResponseEntity<ResponsePayload<ContactGetDTO>> postContact(ContactPostDTO contactPostDTO){
-        //TODO, TROCAR PARA O SUPPLIER QUANDO FOR SUPPLIER O CREATED OF SUPPLIER
-        clientService.clientExistsValidation(contactPostDTO.contactOf());
+        contactValidation.telephoneExistsValidation(contactPostDTO.telephone());
+        existsCreatedForEntity(contactPostDTO);
         Contact contact = contactMapper.postToContact(contactPostDTO);
         contactRepository.save(contact);
+        updateCreatedForEntityStatus(contactPostDTO);
         ContactGetDTO contactGetDTO = contactMapper.contactToContactGetDTO(contact);
         return createResponse(HttpStatus.CREATED, contactGetDTO.id(), contactGetDTO, contactCreatedMessage);
     }
 
     public ResponseEntity<ResponsePayload<ContactGetDTO>> putContact(UUID id, ContactPutDTO contactPutDTO){
+        contactValidation.telephoneExistsInOtherIdValidation(contactPutDTO.telephone(), id);
         Contact contact = contactRepository.findById(id).orElseThrow(() -> new NotFoundException(contactNotFoundMessage));
         contact = contactMapper.putToContact(contactPutDTO, contact);
         contact = contactRepository.save(contact);
@@ -87,5 +93,21 @@ public class ContactService {
         contactValidation.contactExistsValidation(id);
         contactRepository.updateEntityStatus(EntityStatus.INACTIVE, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    private void updateCreatedForEntityStatus(ContactPostDTO contactPostDTO) {
+        if (contactPostDTO.createdFor() == CreatedFor.CLIENT){
+            clientService.updateCreationStuatus(contactPostDTO.contactOf());
+        } else if (contactPostDTO.createdFor() == CreatedFor.SUPPLIER) {
+            supplierService.updateCreationStuatus(contactPostDTO.contactOf());
+        }
+    }
+
+    private void existsCreatedForEntity(ContactPostDTO contactPostDTO) {
+        if (contactPostDTO.createdFor() == CreatedFor.CLIENT){
+            clientService.clientExistsValidation(contactPostDTO.contactOf());
+        } else if (contactPostDTO.createdFor() == CreatedFor.SUPPLIER) {
+            supplierService.supplierExistsValidation(contactPostDTO.contactOf());
+        }
     }
 }

@@ -42,6 +42,7 @@ public class Partner {
     @Column(nullable = false)
     private String telephone;
 
+    @Column(name = "cell_phone")
     private String cellPhone;
 
     @Column(name = "accounting_account")
@@ -56,9 +57,8 @@ public class Partner {
     @Column(name = "municipal_registration")
     private String municipalRegistration;
 
-//    @ManyToOne
-//    @JoinColumn(name = "created_by_id", nullable = false)
-//    private User createdBy; // Relacionamento com a entidade User
+    @Column(name = "created_by")
+    private UUID createdBy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -12,7 +12,7 @@ public class ExceptionsHandler {
 
     @ExceptionHandler(value = Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorView hendleInternalServerException(HttpServletRequest req, Exception e) {
+    public ErrorView handleInternalServerException(HttpServletRequest req, Exception e) {
         final HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         return new ErrorView(
                 httpStatus.value(),
@@ -23,7 +23,7 @@ public class ExceptionsHandler {
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorView hendleBadRequestException(HttpServletRequest req, MethodArgumentNotValidException e) {
+    public ErrorView handleBadRequestException(HttpServletRequest req, MethodArgumentNotValidException e) {
         final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         return new ErrorView(
                 httpStatus.value(),
@@ -35,7 +35,7 @@ public class ExceptionsHandler {
 
     @ExceptionHandler(value = ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorView hendleValidationException(HttpServletRequest req, ValidationException e) {
+    public ErrorView handleValidationException(HttpServletRequest req, ValidationException e) {
         final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         return new ErrorView(
                 httpStatus.value(),
@@ -47,8 +47,32 @@ public class ExceptionsHandler {
 
     @ExceptionHandler(value = NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorView hendleNotFoundException(HttpServletRequest req, NotFoundException e) {
+    public ErrorView handleNotFoundException(HttpServletRequest req, NotFoundException e) {
         final HttpStatus httpStatus = HttpStatus.NOT_FOUND;
+        return new ErrorView(
+                httpStatus.value(),
+                e.getMessage(),
+                httpStatus.name(),
+                req.getServletPath()
+        );
+    }
+
+    @ExceptionHandler(value = UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorView handleUnauthorizedException(HttpServletRequest req, UnauthorizedException e) {
+        final HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
+        return new ErrorView(
+                httpStatus.value(),
+                e.getMessage(),
+                httpStatus.name(),
+                req.getServletPath()
+        );
+    }
+
+    @ExceptionHandler(value = TenantSchemaNotReadyException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorView handleTenantSchemaNotReadyException(HttpServletRequest req, TenantSchemaNotReadyException e) {
+        final HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         return new ErrorView(
                 httpStatus.value(),
                 e.getMessage(),

@@ -68,20 +68,6 @@ public class Address {
     @Column(name = "entity_status", nullable = false)
     private EntityStatus entityStatus;
 
-    public Address(String zipCode, String streetAddress, Integer number, NeighborhoodType neighborhoodType, String neighborhood, String complement, String state, String city, String cityIbge, CreatedFor createdFor, UUID addressOf) {
-        this.zipCode = zipCode;
-        this.streetAddress = streetAddress;
-        this.number = number;
-        this.neighborhoodType = neighborhoodType;
-        this.neighborhood = neighborhood;
-        this.complement = complement;
-        this.state = state;
-        this.city = city;
-        this.cityIbge = cityIbge;
-        this.createdFor = createdFor;
-        this.addressOf = addressOf;
-    }
-
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

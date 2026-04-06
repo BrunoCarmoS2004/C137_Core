@@ -5,8 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 //Table columns already created before the project
 @Entity
-//TODO, COLOCAR NO BANCO DE DADOS CORE
-@Table(name = "cnaes")
+@Table(name = "cnaes", catalog = "financial_master")
 @Data
 @NoArgsConstructor
 public class Cnae {

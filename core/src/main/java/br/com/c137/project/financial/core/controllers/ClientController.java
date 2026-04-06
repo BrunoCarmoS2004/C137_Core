@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -24,7 +26,9 @@ public class ClientController {
     private ClientService clientService;
 
     @GetMapping
-    public ResponseEntity<?> getAll(@PageableDefault(sort = {"createdAt"}, direction = Sort.Direction.DESC) Pageable pageable, PagedResourcesAssembler<ClientGetDTO> assembler) {
+    public ResponseEntity<?> getAll(
+            @PageableDefault(sort = {"createdAt"}, direction = Sort.Direction.DESC) Pageable pageable,
+            PagedResourcesAssembler<ClientGetDTO> assembler) {
         return clientService.getAll(pageable, assembler);
     }
 

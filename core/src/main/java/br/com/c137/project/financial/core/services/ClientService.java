@@ -2,6 +2,7 @@ package br.com.c137.project.financial.core.services;
 
 import br.com.c137.project.financial.core.exceptions.NotFoundException;
 import br.com.c137.project.financial.core.mappers.ClientMapper;
+import br.com.c137.project.financial.core.multitenancy.mastertenant.config.DBContextHolder;
 import br.com.c137.project.financial.core.multitenancy.tenant.dtos.gets.ClientGetDTO;
 import br.com.c137.project.financial.core.multitenancy.tenant.dtos.posts.ClientPostDTO;
 import br.com.c137.project.financial.core.multitenancy.tenant.dtos.puts.ClientPutDTO;
@@ -21,8 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-import static br.com.c137.project.financial.core.utils.ServiceUtils.createResponse;
-import static br.com.c137.project.financial.core.utils.ServiceUtils.pageHasContent;
+import static br.com.c137.project.financial.core.utils.ServiceUtils.*;
 
 @Service
 public class ClientService {
@@ -48,26 +48,35 @@ public class ClientService {
     }
 
     public ResponseEntity<ResponsePayload<ClientGetDTO>> getClientById(UUID id) {
-        ClientGetDTO clientGetDTO = clientRepository.findById(id, ClientGetDTO.class).orElseThrow(() -> new NotFoundException(clientNotFoundMessage));
+        ClientGetDTO clientGetDTO = clientRepository.findById(id, ClientGetDTO.class)
+                .orElseThrow(() -> new NotFoundException(clientNotFoundMessage));
         return createResponse(HttpStatus.OK, clientGetDTO.id(), clientGetDTO, clientFoundMessage);
     }
 
     public ResponseEntity<ResponsePayload<ClientGetDTO>> postClient(ClientPostDTO clientPostDTO) {
         clientValidation.inscriptionExistsValidation(clientPostDTO.inscription());
         clientValidation.emailExistsValidation(clientPostDTO.email());
+
         Client client = clientMapper.postToClient(clientPostDTO);
+        //TODO, COLOCAR ISSO EM TODOS OS REGISTROS.
+        client.setCreatedBy(getUserIdFromToken());
         client = clientRepository.save(client);
         ClientGetDTO clientGetDTO = clientMapper.clientToClientGetDTO(client);
+
         return createResponse(HttpStatus.CREATED, clientGetDTO.id(), clientGetDTO, clientCreatedMessage);
     }
 
     public ResponseEntity<ResponsePayload<ClientGetDTO>> putClient(UUID id, ClientPutDTO clientPutDTO) {
         clientValidation.inscriptionExistsInOtherIdValidation(clientPutDTO.inscription(), id);
         clientValidation.emailExistsInOtherIdValidation(clientPutDTO.email(), id);
-        Client client = clientRepository.findById(id, Client.class).orElseThrow(() -> new NotFoundException(clientNotFoundMessage));
+
+        Client client = clientRepository.findById(id, Client.class)
+                .orElseThrow(() -> new NotFoundException(clientNotFoundMessage));
+
         client = clientMapper.putToClient(clientPutDTO, client);
         client = clientRepository.save(client);
         ClientGetDTO clientGetDTO = clientMapper.clientToClientGetDTO(client);
+
         return createResponse(HttpStatus.OK, clientGetDTO.id(), clientGetDTO, clientUpdatedMessage);
     }
 
@@ -95,3 +104,7 @@ public class ClientService {
         clientRepository.updateEntityStatus(entityStatus, id);
     }
 }
+
+
+
+

@@ -1,8 +1,8 @@
-package br.com.c137.project.financial.core.multitenancy.tenant.repositorys;
+package br.com.c137.project.financial.core.multitenancy.tenant.repositories;
 
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.CreationStatus;
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.EntityStatus;
-import br.com.c137.project.financial.core.multitenancy.tenant.models.partner.Supplier;
+import br.com.c137.project.financial.core.multitenancy.tenant.models.partner.Client;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,8 +13,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
+
 @Repository
-public interface SupplierRepository extends JpaRepository<Supplier, UUID> {
+public interface ClientRepository extends JpaRepository<Client, UUID> {
+
     <T> Optional<T> findById(UUID uuid, Class<T> type);
 
     <T> Page<T> findBy(Pageable pageable, Class<T> type);
@@ -29,11 +31,11 @@ public interface SupplierRepository extends JpaRepository<Supplier, UUID> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE Supplier s SET s.creationStatus = :creationStatus WHERE s.id = :id")
+    @Query("UPDATE Client c SET c.creationStatus = :creationStatus WHERE c.id = :id")
     void updateCreationStatus(CreationStatus creationStatus, UUID id);
 
     @Transactional
     @Modifying
-    @Query("UPDATE Supplier s SET s.entityStatus = :entityStatus WHERE s.id = :id")
+    @Query("UPDATE Client c SET c.entityStatus = :entityStatus WHERE c.id = :id")
     void updateEntityStatus(EntityStatus entityStatus, UUID id);
 }

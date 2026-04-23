@@ -3,7 +3,7 @@ package br.com.c137.project.financial.core.mappers;
 import br.com.c137.project.financial.core.multitenancy.tenant.dtos.gets.TaxRuleGetDTO;
 import br.com.c137.project.financial.core.multitenancy.tenant.dtos.posts.TaxRulePostDTO;
 import br.com.c137.project.financial.core.multitenancy.tenant.dtos.puts.TaxRulePutDTO;
-import br.com.c137.project.financial.core.multitenancy.tenant.models.TaxRule;
+import br.com.c137.project.financial.core.multitenancy.tenant.models.serviceproduct.TaxRule;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 

@@ -1,4 +1,4 @@
-package br.com.c137.project.financial.core.multitenancy.mastertenant.repositorys;
+package br.com.c137.project.financial.core.multitenancy.mastertenant.repositories;
 
 import br.com.c137.project.financial.core.multitenancy.mastertenant.enums.DatabaseStatus;
 import br.com.c137.project.financial.core.multitenancy.mastertenant.models.UserTenant;

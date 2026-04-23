@@ -8,7 +8,7 @@ import br.com.c137.project.financial.core.multitenancy.tenant.enums.CreationStat
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.InscriptionType;
 import br.com.c137.project.financial.core.multitenancy.tenant.models.partner.Client;
-import br.com.c137.project.financial.core.multitenancy.tenant.repositorys.ClientRepository;
+import br.com.c137.project.financial.core.multitenancy.tenant.repositories.ClientRepository;
 import br.com.c137.project.financial.core.responses.ResponsePayload;
 import br.com.c137.project.financial.core.validations.ClientValidation;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -48,9 +48,6 @@ class ClientServiceTest {
 
     @Mock
     private ClientMapper clientMapper;
-
-    @Mock
-    private PagedResourcesAssembler<ClientGetDTO> assembler;
 
     @InjectMocks
     private ClientService clientService;
@@ -138,7 +135,9 @@ class ClientServiceTest {
         when(clientRepository.findBy(pageable, ClientGetDTO.class)).thenReturn(Page.empty());
 
         // Act
-        ResponseEntity<?> response = clientService.getAll(pageable, assembler);
+        PagedModel<ClientGetDTO> page = clientService.getAll(pageable);
+
+        ResponseEntity<?> response = ResponseEntity.status(HttpStatus.OK).body(page);
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);

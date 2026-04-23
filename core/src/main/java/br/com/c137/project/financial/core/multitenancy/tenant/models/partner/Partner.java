@@ -13,6 +13,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static br.com.c137.project.financial.core.utils.ServiceUtils.getUserIdFromToken;
+
 @MappedSuperclass
 @Data
 @SuperBuilder
@@ -101,6 +103,7 @@ public class Partner {
         this.createdAt = LocalDateTime.now();
         this.creationStatus = CreationStatus.INCOMPLETE;
         this.entityStatus = EntityStatus.ACTIVE;
+        this.createdBy = getUserIdFromToken();
     }
 
 }

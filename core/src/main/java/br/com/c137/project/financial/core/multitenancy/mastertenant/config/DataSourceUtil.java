@@ -6,18 +6,18 @@ import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;
 
 public final class DataSourceUtil {
-	
-	public static DataSource createAndConfigureDataSource(UserTenant userTenant) {
+
+    public static DataSource createAndConfigureDataSource(UserTenant userTenant) {
         HikariDataSource ds = new HikariDataSource();
         ds.setUsername(userTenant.getUserName());
         ds.setPassword(userTenant.getPassword());
         ds.setJdbcUrl(userTenant.getUrl());
         ds.setDriverClassName(userTenant.getDriverClass());
-        ds.setConnectionTimeout(20000);
-        ds.setMinimumIdle(1);
-        ds.setMaximumPoolSize(200);
-        ds.setIdleTimeout(300000);
-        ds.setConnectionTimeout(20000);
+        ds.setMaximumPoolSize(2);
+        ds.setMinimumIdle(0);
+        ds.setIdleTimeout(3000);
+        ds.setConnectionTimeout(10000);
+        ds.setMaxLifetime(60000);
         String tenantConnectionPoolName = userTenant.getDbName() + "-connection-pool";
         ds.setPoolName(tenantConnectionPoolName);
         return ds;

@@ -1,7 +1,7 @@
-package br.com.c137.project.financial.core.multitenancy.tenant.repositorys;
+package br.com.c137.project.financial.core.multitenancy.tenant.repositories;
 
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.EntityStatus;
-import br.com.c137.project.financial.core.multitenancy.tenant.models.TaxRule;
+import br.com.c137.project.financial.core.multitenancy.tenant.models.serviceproduct.TaxRule;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

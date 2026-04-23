@@ -22,10 +22,10 @@ import java.util.Map;
 @Configuration
 @EnableTransactionManagement
 @ComponentScan(basePackages = {
-        "br.com.c137.project.financial.core.multitenancy.tenant.repositorys",
+        "br.com.c137.project.financial.core.multitenancy.tenant.repositories",
         "br.com.c137.project.financial.core.multitenancy.tenant.models" })
 @EnableJpaRepositories(basePackages = {
-        "br.com.c137.project.financial.core.multitenancy.tenant.repositorys",
+        "br.com.c137.project.financial.core.multitenancy.tenant.repositories",
         "br.com.c137.project.financial.core.services" },
         entityManagerFactoryRef = "tenantEntityManagerFactory",
         transactionManagerRef = "tenantTransactionManager")

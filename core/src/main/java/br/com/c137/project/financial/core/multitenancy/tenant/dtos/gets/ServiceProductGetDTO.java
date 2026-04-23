@@ -2,8 +2,8 @@ package br.com.c137.project.financial.core.multitenancy.tenant.dtos.gets;
 
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.ServiceProductType;
-import br.com.c137.project.financial.core.multitenancy.tenant.models.TaxRule;
-import br.com.c137.project.financial.core.multitenancy.tenant.models.UnitMeasure;
+import br.com.c137.project.financial.core.multitenancy.tenant.models.serviceproduct.TaxRule;
+import br.com.c137.project.financial.core.multitenancy.tenant.models.serviceproduct.UnitMeasure;
 
 import java.math.BigDecimal;
 import java.util.UUID;

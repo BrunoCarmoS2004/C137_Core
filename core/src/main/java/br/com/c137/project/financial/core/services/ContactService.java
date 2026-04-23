@@ -8,13 +8,17 @@ import br.com.c137.project.financial.core.multitenancy.tenant.dtos.puts.ContactP
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.CreatedFor;
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.financial.core.multitenancy.tenant.models.Contact;
-import br.com.c137.project.financial.core.multitenancy.tenant.repositorys.ContactRepository;
+import br.com.c137.project.financial.core.multitenancy.tenant.repositories.ContactRepository;
 import br.com.c137.project.financial.core.responses.ResponsePayload;
+import br.com.c137.project.financial.core.utils.MessageUtils;
 import br.com.c137.project.financial.core.validations.ContactValidation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,7 +26,6 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 import static br.com.c137.project.financial.core.utils.ServiceUtils.createResponse;
-import static br.com.c137.project.financial.core.utils.ServiceUtils.pageHasContent;
 
 @Service
 public class ContactService {
@@ -41,62 +44,82 @@ public class ContactService {
     @Autowired
     private SupplierService supplierService;
 
-    private final String contactNotFoundMessage = "Contact not found";
+    @Autowired
+    private MessageUtils messageUtils;
 
-    private final String contactCreatedMessage = "Contact created";
-
-    private final String contactUpdatedMessage = "Contact updated";
-
-    private final String contactFoundMessage = "Contact found";
-
-    public ResponseEntity<?> getAll(Pageable pageable, PagedResourcesAssembler<ContactGetDTO> assembler) {
+    @Cacheable(value = "contacts", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
+    public PagedModel<ContactGetDTO> getAll(Pageable pageable) {
         Page<ContactGetDTO> contacts = contactRepository.findBy(pageable, ContactGetDTO.class);
-        return pageHasContent(contacts, assembler);
+        return new PagedModel<>(contacts);
     }
 
-    public ResponseEntity<?> getAllByContactOf(UUID id, Pageable pageable, PagedResourcesAssembler<ContactGetDTO> assembler) {
+    @Cacheable(
+            value = "contactsof",
+            key = "#id.toString() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize"
+    )
+    public PagedModel<ContactGetDTO> getAllByContactOf(UUID id, Pageable pageable) {
         Page<ContactGetDTO> contacts = contactRepository.findAllByContactOf(id, pageable);
-        return pageHasContent(contacts,  assembler);
+        return new PagedModel<>(contacts);
     }
 
-    public ResponseEntity<ResponsePayload<ContactGetDTO>> getContactById(UUID id) {
-        ContactGetDTO contactGetDTO = contactRepository.findById(id, ContactGetDTO.class).orElseThrow(() -> new NotFoundException(contactNotFoundMessage));
-        return createResponse(HttpStatus.OK, contactGetDTO.id(), contactGetDTO, contactFoundMessage);
+    @Cacheable(value = "contact", key = "#id")
+    public ContactGetDTO getContactById(UUID id) {
+        return contactRepository.findById(id, ContactGetDTO.class).orElseThrow(() -> new NotFoundException(getNotFoundMessage()));
     }
 
-    public ResponseEntity<ResponsePayload<ContactGetDTO>> postContact(ContactPostDTO contactPostDTO){
+    @CacheEvict(value = "contacts", allEntries = true)
+    public ContactGetDTO postContact(ContactPostDTO contactPostDTO) {
         contactValidation.telephoneExistsValidation(contactPostDTO.telephone());
         existsCreatedForEntity(contactPostDTO);
         Contact contact = contactMapper.postToContact(contactPostDTO);
         contactRepository.save(contact);
         updateCreatedForEntityStatus(contactPostDTO);
-        ContactGetDTO contactGetDTO = contactMapper.contactToContactGetDTO(contact);
-        return createResponse(HttpStatus.CREATED, contactGetDTO.id(), contactGetDTO, contactCreatedMessage);
+        return contactMapper.contactToContactGetDTO(contact);
     }
-
-    public ResponseEntity<ResponsePayload<ContactGetDTO>> putContact(UUID id, ContactPutDTO contactPutDTO){
+    @Caching(evict = {
+            @CacheEvict(value = "contacts", key = "#pageable.pageNumber + '-' + #pageable.pageSize"),
+            @CacheEvict(
+                    value = "contactsof",
+                    key = "#id.toString() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize"
+            ),
+            @CacheEvict(value = "contact", key = "#id")
+    })
+    public ContactGetDTO putContact(UUID id, ContactPutDTO contactPutDTO) {
         contactValidation.telephoneExistsInOtherIdValidation(contactPutDTO.telephone(), id);
-        Contact contact = contactRepository.findById(id).orElseThrow(() -> new NotFoundException(contactNotFoundMessage));
+        Contact contact = contactRepository.findById(id).orElseThrow(() -> new NotFoundException(getNotFoundMessage()));
         contact = contactMapper.putToContact(contactPutDTO, contact);
         contact = contactRepository.save(contact);
-        ContactGetDTO contactGetDTO = contactMapper.contactToContactGetDTO(contact);
-        return createResponse(HttpStatus.OK, contactGetDTO.id(), contactGetDTO, contactUpdatedMessage);
+        return contactMapper.contactToContactGetDTO(contact);
     }
 
-    public ResponseEntity<Void> deleteContact(UUID id) {
+    @Caching(evict = {
+            @CacheEvict(value = "contacts", key = "#pageable.pageNumber + '-' + #pageable.pageSize"),
+            @CacheEvict(
+                    value = "contactsof",
+                    key = "#id.toString() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize"
+            ),
+            @CacheEvict(value = "contact", key = "#id")
+    })
+    public void deleteContact(UUID id) {
         contactValidation.contactExistsValidation(id);
         contactRepository.updateEntityStatus(EntityStatus.DELETED, id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    public ResponseEntity<Void> inactiveContact(UUID id) {
+    @Caching(evict = {
+            @CacheEvict(value = "contacts", key = "#pageable.pageNumber + '-' + #pageable.pageSize"),
+            @CacheEvict(
+                    value = "contactsof",
+                    key = "#id.toString() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize"
+            ),
+            @CacheEvict(value = "contact", key = "#id")
+    })
+    public void inactiveContact(UUID id) {
         contactValidation.contactExistsValidation(id);
         contactRepository.updateEntityStatus(EntityStatus.INACTIVE, id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     private void updateCreatedForEntityStatus(ContactPostDTO contactPostDTO) {
-        if (contactPostDTO.createdFor() == CreatedFor.CLIENT){
+        if (contactPostDTO.createdFor() == CreatedFor.CLIENT) {
             clientService.updateCreationStuatus(contactPostDTO.contactOf());
         } else if (contactPostDTO.createdFor() == CreatedFor.SUPPLIER) {
             supplierService.updateCreationStuatus(contactPostDTO.contactOf());
@@ -104,10 +127,14 @@ public class ContactService {
     }
 
     private void existsCreatedForEntity(ContactPostDTO contactPostDTO) {
-        if (contactPostDTO.createdFor() == CreatedFor.CLIENT){
+        if (contactPostDTO.createdFor() == CreatedFor.CLIENT) {
             clientService.clientExistsValidation(contactPostDTO.contactOf());
         } else if (contactPostDTO.createdFor() == CreatedFor.SUPPLIER) {
             supplierService.supplierExistsValidation(contactPostDTO.contactOf());
         }
+    }
+
+    private String getNotFoundMessage(){
+        return messageUtils.getMessage("contact.not-found");
     }
 }

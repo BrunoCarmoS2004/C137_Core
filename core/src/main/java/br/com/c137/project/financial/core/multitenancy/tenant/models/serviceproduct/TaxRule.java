@@ -1,4 +1,4 @@
-package br.com.c137.project.financial.core.multitenancy.tenant.models;
+package br.com.c137.project.financial.core.multitenancy.tenant.models.serviceproduct;
 
 import br.com.c137.project.financial.core.multitenancy.mastertenant.models.Cnae;
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.Enforceability;
@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import static br.com.c137.project.financial.core.utils.ServiceUtils.getUserIdFromToken;
 
 @Entity
 @Table(name = "tax_rules")
@@ -66,9 +68,8 @@ public class TaxRule {
     @Column(name = "is_default")
     private Boolean defoult; // Mantido o nome conforme a tabela (default é palavra reservada)
 
-//    @ManyToOne
-//    @JoinColumn(name = "created_by_id", nullable = false)
-//    private User createdBy;
+    @Column(name = "created_by", nullable = false)
+    private UUID createdBy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -107,5 +108,6 @@ public class TaxRule {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.entityStatus = EntityStatus.ACTIVE;
+        this.createdBy = getUserIdFromToken();
     }
 }

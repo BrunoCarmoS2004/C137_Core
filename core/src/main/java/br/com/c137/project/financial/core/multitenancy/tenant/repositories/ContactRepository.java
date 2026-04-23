@@ -1,7 +1,8 @@
-package br.com.c137.project.financial.core.multitenancy.tenant.repositorys;
+package br.com.c137.project.financial.core.multitenancy.tenant.repositories;
 
+import br.com.c137.project.financial.core.multitenancy.tenant.dtos.gets.ContactGetDTO;
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.EntityStatus;
-import br.com.c137.project.financial.core.multitenancy.tenant.models.ServiceProduct;
+import br.com.c137.project.financial.core.multitenancy.tenant.models.Contact;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,19 +13,21 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
-
 @Repository
-public interface ServiceProductRepository extends JpaRepository<ServiceProduct, UUID> {
-    <T> Optional<T> findById(UUID uuid, Class<T> type);
+public interface ContactRepository extends JpaRepository<Contact, UUID> {
 
     <T> Page<T> findBy(Pageable pageable, Class<T> type);
 
-    boolean existsByCodeAndIdNot(String code, UUID id);
+    <T> Optional<T> findById(UUID id, Class<T> type);
 
-    boolean existsByCode(String code);
+    Page<ContactGetDTO> findAllByContactOf(UUID contactOf, Pageable pageable);
 
     @Transactional
     @Modifying
-    @Query("UPDATE ServiceProduct sp SET sp.entityStatus = :entityStatus WHERE sp.id = :id")
+    @Query("UPDATE Contact c SET c.entityStatus = :entityStatus WHERE c.id = :id")
     void updateEntityStatus(EntityStatus entityStatus, UUID id);
+
+    boolean existsByTelephoneAndIdNot(String telephone, UUID id);
+
+    boolean existsByTelephone(String telephone);
 }

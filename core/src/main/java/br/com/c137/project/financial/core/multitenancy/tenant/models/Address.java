@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static br.com.c137.project.financial.core.utils.ServiceUtils.getUserIdFromToken;
+
 @Entity
 @Table(name = "addresses")
 @Data
@@ -50,9 +52,8 @@ public class Address {
     @Column(name = "city_ibge", nullable = false)
     private String cityIbge;
 
-//    @ManyToOne
-//    @JoinColumn(name = "created_by_id", nullable = false)
-//    private User createdBy;
+    @Column(name = "created_by", nullable = false)
+    private UUID createdBy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -72,5 +73,6 @@ public class Address {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.entityStatus = EntityStatus.ACTIVE;
+        this.createdBy = getUserIdFromToken();
     }
 }

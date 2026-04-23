@@ -1,8 +1,7 @@
-package br.com.c137.project.financial.core.multitenancy.tenant.repositorys;
+package br.com.c137.project.financial.core.multitenancy.tenant.repositories;
 
-import br.com.c137.project.financial.core.multitenancy.tenant.dtos.gets.AddressGetDTO;
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.EntityStatus;
-import br.com.c137.project.financial.core.multitenancy.tenant.models.Address;
+import br.com.c137.project.financial.core.multitenancy.tenant.models.serviceproduct.UnitMeasure;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,19 +13,17 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.UUID;
 @Repository
-public interface AddressRepository extends JpaRepository<Address, UUID> {
+public interface UnitMeasureRepository extends JpaRepository<UnitMeasure, UUID> {
     <T> Page<T> findBy(Pageable pageable, Class<T> type);
 
     <T> Optional<T> findById(UUID id, Class<T> type);
 
-    Page<AddressGetDTO> findAllByAddressOf(UUID addressOf, Pageable pageable);
-
     @Transactional
     @Modifying
-    @Query("UPDATE Address a SET a.entityStatus = :entityStatus WHERE a.id = :id")
+    @Query("UPDATE UnitMeasure u SET u.entityStatus = :entityStatus WHERE u.id = :id")
     void updateEntityStatus(EntityStatus entityStatus, UUID id);
 
-    boolean existsByZipCodeAndNumber(String zipCode, Integer number);
+    boolean existsByAcronym(String acronym);
 
-    boolean existsByZipCodeAndNumberAndIdNot(String zipCode, Integer number, UUID id);
+    boolean existsByAcronymAndIdNot(String acronym, UUID id);
 }

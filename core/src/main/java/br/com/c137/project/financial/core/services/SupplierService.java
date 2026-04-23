@@ -8,13 +8,17 @@ import br.com.c137.project.financial.core.multitenancy.tenant.dtos.puts.Supplier
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.CreationStatus;
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.financial.core.multitenancy.tenant.models.partner.Supplier;
-import br.com.c137.project.financial.core.multitenancy.tenant.repositorys.SupplierRepository;
+import br.com.c137.project.financial.core.multitenancy.tenant.repositories.SupplierRepository;
 import br.com.c137.project.financial.core.responses.ResponsePayload;
+import br.com.c137.project.financial.core.utils.MessageUtils;
 import br.com.c137.project.financial.core.validations.SupplierValidation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,7 +26,6 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 import static br.com.c137.project.financial.core.utils.ServiceUtils.createResponse;
-import static br.com.c137.project.financial.core.utils.ServiceUtils.pageHasContent;
 
 @Service
 public class SupplierService {
@@ -34,53 +37,59 @@ public class SupplierService {
     @Autowired
     private SupplierMapper supplierMapper;
 
-    private final String supplierNotFoundMessage = "Supplier not found";
+    @Autowired
+    private MessageUtils messageUtils;
 
-    private final String supplierCreatedMessage = "Supplier Created";
 
-    private final String supplierFoundMessage = "Supplier Found";
-
-    private final String supplierUpdatedMessage = "Supplier Updated";
-
-    public ResponseEntity<?> getAll(Pageable pageable, PagedResourcesAssembler<SupplierGetDTO> assembler) {
+    @Cacheable(value = "suppliers", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
+    public PagedModel<SupplierGetDTO> getAll(Pageable pageable) {
         Page<SupplierGetDTO> suppliers = supplierRepository.findBy(pageable, SupplierGetDTO.class);
-        return pageHasContent(suppliers, assembler);
+        return new PagedModel<>(suppliers);
     }
 
-    public ResponseEntity<ResponsePayload<SupplierGetDTO>> getSupplierById(UUID id) {
-        SupplierGetDTO supplierGetDTO = supplierRepository.findById(id, SupplierGetDTO.class).orElseThrow(() -> new NotFoundException(supplierNotFoundMessage));
-        return createResponse(HttpStatus.OK, supplierGetDTO.id(), supplierGetDTO, supplierFoundMessage);
+    @Cacheable(value = "supplier", key = "#id")
+    public SupplierGetDTO getSupplierById(UUID id) {
+        return supplierRepository.findById(id, SupplierGetDTO.class).orElseThrow(() -> new NotFoundException(getNotFoundMessage()));
     }
 
-    public ResponseEntity<ResponsePayload<SupplierGetDTO>> postSupplier(SupplierPostDTO supplierPostDTO) {
+    @CacheEvict(value = "suppliers", allEntries = true)
+    public SupplierGetDTO postSupplier(SupplierPostDTO supplierPostDTO) {
         supplierValidation.inscriptionExistsValidation(supplierPostDTO.inscription());
         supplierValidation.emailExistsValidation(supplierPostDTO.email());
         Supplier supplier = supplierMapper.postToSupplier(supplierPostDTO);
         supplier = supplierRepository.save(supplier);
-        SupplierGetDTO supplierGetDTO = supplierMapper.supplierToSupplierGetDTO(supplier);
-        return createResponse(HttpStatus.CREATED, supplierGetDTO.id(), supplierGetDTO, supplierCreatedMessage);
+        return supplierMapper.supplierToSupplierGetDTO(supplier);
     }
 
-    public ResponseEntity<ResponsePayload<SupplierGetDTO>> putSupplier(UUID id, SupplierPutDTO supplierPutDTO) {
+    @Caching(evict = {
+            @CacheEvict(value = "suppliers", allEntries = true),
+            @CacheEvict(value = "supplier", key = "#id")
+    })
+    public SupplierGetDTO putSupplier(UUID id, SupplierPutDTO supplierPutDTO) {
         supplierValidation.inscriptionExistsInOtherIdValidation(supplierPutDTO.inscription(), id);
         supplierValidation.emailExistsInOtherIdValidation(supplierPutDTO.email(), id);
-        Supplier supplier = supplierRepository.findById(id, Supplier.class).orElseThrow(() -> new NotFoundException(supplierNotFoundMessage));
+        Supplier supplier = supplierRepository.findById(id, Supplier.class).orElseThrow(() -> new NotFoundException(getNotFoundMessage()));
         supplier = supplierMapper.putToSupplier(supplierPutDTO, supplier);
         supplier = supplierRepository.save(supplier);
-        SupplierGetDTO supplierGetDTO = supplierMapper.supplierToSupplierGetDTO(supplier);
-        return createResponse(HttpStatus.OK, supplierGetDTO.id(), supplierGetDTO, supplierUpdatedMessage);
+        return supplierMapper.supplierToSupplierGetDTO(supplier);
     }
 
-    public ResponseEntity<Void> deleteSupplier(UUID id) {
+    @Caching(evict = {
+            @CacheEvict(value = "suppliers", allEntries = true),
+            @CacheEvict(value = "supplier", key = "#id")
+    })
+    public void deleteSupplier(UUID id) {
         supplierExistsValidation(id);
         updateEntityStatus(EntityStatus.DELETED, id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    public ResponseEntity<Void> inactiveSupplier(UUID id) {
+    @Caching(evict = {
+            @CacheEvict(value = "suppliers", allEntries = true),
+            @CacheEvict(value = "supplier", key = "#id")
+    })
+    public void inactiveSupplier(UUID id) {
         supplierExistsValidation(id);
         updateEntityStatus(EntityStatus.INACTIVE, id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     protected void updateCreationStuatus(UUID id) {
@@ -94,4 +103,9 @@ public class SupplierService {
     protected void updateEntityStatus(EntityStatus entityStatus, UUID id) {
         supplierRepository.updateEntityStatus(entityStatus, id);
     }
+
+    private String getNotFoundMessage() {
+        return messageUtils.getMessage("supplier.not-found");
+    }
 }
+

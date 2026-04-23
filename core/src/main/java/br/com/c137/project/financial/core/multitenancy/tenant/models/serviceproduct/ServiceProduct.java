@@ -1,4 +1,4 @@
-package br.com.c137.project.financial.core.multitenancy.tenant.models;
+package br.com.c137.project.financial.core.multitenancy.tenant.models.serviceproduct;
 
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.ServiceProductType;
@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import static br.com.c137.project.financial.core.utils.ServiceUtils.getUserIdFromToken;
 
 @Entity
 @Table(name = "services_products")
@@ -27,9 +29,8 @@ public class ServiceProduct {
     @Column(nullable = false)
     private String name;
 
-//    @ManyToOne
-//    @JoinColumn(name = "created_by_id", nullable = false)
-//    private User createdBy;
+    @Column(name = "created_by", nullable = false)
+    private UUID createdBy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -69,5 +70,6 @@ public class ServiceProduct {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.entityStatus = EntityStatus.ACTIVE;
+        this.createdBy = getUserIdFromToken();
     }
 }

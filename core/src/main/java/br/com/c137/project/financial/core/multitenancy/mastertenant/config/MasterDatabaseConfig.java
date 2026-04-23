@@ -1,7 +1,7 @@
 package br.com.c137.project.financial.core.multitenancy.mastertenant.config;
 
 import br.com.c137.project.financial.core.multitenancy.mastertenant.models.UserTenant;
-import br.com.c137.project.financial.core.multitenancy.mastertenant.repositorys.UserTenantRepository;
+import br.com.c137.project.financial.core.multitenancy.mastertenant.repositories.UserTenantRepository;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.Properties;
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = {
         "br.com.c137.project.financial.core.multitenancy.mastertenant.models",
-        "br.com.c137.project.financial.core.multitenancy.mastertenant.repositorys" },
+        "br.com.c137.project.financial.core.multitenancy.mastertenant.repositories"},
         entityManagerFactoryRef = "masterEntityManagerFactory", transactionManagerRef = "masterTransactionManager")
 public class MasterDatabaseConfig {
 

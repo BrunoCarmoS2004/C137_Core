@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static br.com.c137.project.financial.core.utils.ServiceUtils.getUserIdFromToken;
+
 @Entity
 @Table(name = "contacts")
 @Data
@@ -44,9 +46,8 @@ public class Contact {
     @Column(name = "contact_of_id", nullable = false)
     private UUID contactOf; //Client or Supplier Id
 
-//    @ManyToOne
-//    @JoinColumn(name = "created_by_id", nullable = false)
-//    private User createdBy;
+    @Column(name = "created_by", nullable = false)
+    private UUID createdBy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -59,5 +60,6 @@ public class Contact {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.entityStatus = EntityStatus.ACTIVE;
+        this.createdBy = getUserIdFromToken();
     }
 }

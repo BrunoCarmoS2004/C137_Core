@@ -9,13 +9,17 @@ import br.com.c137.project.financial.core.multitenancy.tenant.dtos.puts.AddressP
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.CreatedFor;
 import br.com.c137.project.financial.core.multitenancy.tenant.enums.EntityStatus;
 import br.com.c137.project.financial.core.multitenancy.tenant.models.Address;
-import br.com.c137.project.financial.core.multitenancy.tenant.repositorys.AddressRepository;
+import br.com.c137.project.financial.core.multitenancy.tenant.repositories.AddressRepository;
 import br.com.c137.project.financial.core.responses.ResponsePayload;
+import br.com.c137.project.financial.core.utils.MessageUtils;
 import br.com.c137.project.financial.core.validations.AddressValidation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,7 +27,6 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 import static br.com.c137.project.financial.core.utils.ServiceUtils.createResponse;
-import static br.com.c137.project.financial.core.utils.ServiceUtils.pageHasContent;
 
 @Service
 public class AddressService {
@@ -42,58 +45,79 @@ public class AddressService {
     @Autowired
     private SupplierService supplierService;
 
-    private final String addressNotFoundMessage = "Address not found";
+    @Autowired
+    private MessageUtils messageUtils;
 
-    private final String addressCreatedMessage = "Address Created";
-
-    private final String addressFoundMessage = "Address Found";
-
-    private final String addressUpdatedMessage = "Address Updated";
-
-    public ResponseEntity<?> getAll(Pageable pageable, PagedResourcesAssembler<AddressGetDTO> assembler) {
+    @Cacheable(value = "addresses", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
+    public PagedModel<AddressGetDTO> getAll(Pageable pageable) {
         Page<AddressGetDTO> addresses = addressRepository.findBy(pageable, AddressGetDTO.class);
-        return pageHasContent(addresses, assembler);
+        return new PagedModel<>(addresses);
     }
 
-    public ResponseEntity<?> getAllByAddressOf(UUID id, Pageable pageable, PagedResourcesAssembler<AddressGetDTO> assembler) {
+    @Cacheable(
+            value = "addressesof",
+            key = "#id.toString() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize"
+    )
+    public PagedModel<AddressGetDTO> getAllByAddressOf(UUID id, Pageable pageable) {
         Page<AddressGetDTO> addresses = addressRepository.findAllByAddressOf(id, pageable);
-        return pageHasContent(addresses, assembler);
+        return new PagedModel<>(addresses);
     }
 
-    public ResponseEntity<ResponsePayload<AddressGetDTO>> getAddressById(UUID id) {
-        AddressGetDTO addressGetDTO = addressRepository.findById(id, AddressGetDTO.class).orElseThrow(() -> new NotFoundException(addressNotFoundMessage));
-        return createResponse(HttpStatus.OK, addressGetDTO.id(), addressGetDTO, addressFoundMessage);
+    @Cacheable(value = "address", key = "#id")
+    public AddressGetDTO getAddressById(UUID id) {
+        return addressRepository.findById(id, AddressGetDTO.class).orElseThrow(() -> new NotFoundException(getNotFoundMessage()));
     }
 
-    public ResponseEntity<ResponsePayload<AddressGetDTO>> postAddress(AddressPostDTO addressPostDTO) {
+    @CacheEvict(value = "addresses", allEntries = true)
+    public AddressGetDTO postAddress(AddressPostDTO addressPostDTO) {
         addressValidation.zipCodeAndNumberExistsValidation(addressPostDTO.zipCode(), addressPostDTO.number());
         existsCreatedForEntity(addressPostDTO);
         Address address = addressMapper.postToAddress(addressPostDTO);
         address = addressRepository.save(address);
         updateCreatedForEntityStatus(addressPostDTO);
-        AddressGetDTO addressGetDTO = addressMapper.addressToAddressGetDTO(address);
-        return createResponse(HttpStatus.CREATED, addressGetDTO.id(), addressGetDTO, addressCreatedMessage);
+        return addressMapper.addressToAddressGetDTO(address);
     }
 
-    public ResponseEntity<ResponsePayload<AddressGetDTO>> putAddress(UUID id, AddressPutDTO addressPutDTO) {
+    @Caching(evict = {
+            @CacheEvict(value = "addresses", key = "#pageable.pageNumber + '-' + #pageable.pageSize"),
+            @CacheEvict(
+                    value = "addressesof",
+                    key = "#id.toString() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize"
+            ),
+            @CacheEvict(value = "address", key = "#id")
+    })
+    public AddressGetDTO putAddress(UUID id, AddressPutDTO addressPutDTO) {
         addressValidation.zipCodeAndNumberInOtherIdExistsValidation(addressPutDTO.zipCode(), addressPutDTO.number(), id);
-        Address address = addressRepository.findById(id).orElseThrow(() -> new NotFoundException(addressNotFoundMessage));
+        Address address = addressRepository.findById(id).orElseThrow(() -> new NotFoundException(getNotFoundMessage()));
         address = addressMapper.putToAddress(addressPutDTO, address);
         address = addressRepository.save(address);
-        AddressGetDTO addressGetDTO = addressMapper.addressToAddressGetDTO(address);
-        return createResponse(HttpStatus.OK, addressGetDTO.id(), addressGetDTO, addressUpdatedMessage);
+        return addressMapper.addressToAddressGetDTO(address);
     }
 
-    public ResponseEntity<Void> deleteAddress(UUID id) {
+    @Caching(evict = {
+            @CacheEvict(value = "addresses", key = "#pageable.pageNumber + '-' + #pageable.pageSize"),
+            @CacheEvict(
+                    value = "addressesof",
+                    key = "#id.toString() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize"
+            ),
+            @CacheEvict(value = "address", key = "#id")
+    })
+    public void deleteAddress(UUID id) {
         addressValidation.addressExistsValidation(id);
         addressRepository.updateEntityStatus(EntityStatus.DELETED, id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    public ResponseEntity<Void> inactiveAddress(UUID id) {
+    @Caching(evict = {
+            @CacheEvict(value = "addresses", key = "#pageable.pageNumber + '-' + #pageable.pageSize"),
+            @CacheEvict(
+                    value = "addressesof",
+                    key = "#id.toString() + '-' + #pageable.pageNumber + '-' + #pageable.pageSize"
+            ),
+            @CacheEvict(value = "address", key = "#id")
+    })
+    public void inactiveAddress(UUID id) {
         addressValidation.addressExistsValidation(id);
         addressRepository.updateEntityStatus(EntityStatus.INACTIVE, id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     private void updateCreatedForEntityStatus(AddressPostDTO addressPostDTO) {
@@ -110,5 +134,9 @@ public class AddressService {
         } else if (addressPostDTO.createdFor() == CreatedFor.SUPPLIER) {
             supplierService.supplierExistsValidation(addressPostDTO.addressOf());
         }
+    }
+
+    private String getNotFoundMessage(){
+        return messageUtils.getMessage("address.not-found");
     }
 }

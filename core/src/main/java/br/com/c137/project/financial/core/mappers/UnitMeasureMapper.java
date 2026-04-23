@@ -3,7 +3,7 @@ package br.com.c137.project.financial.core.mappers;
 import br.com.c137.project.financial.core.multitenancy.tenant.dtos.gets.UnitMeasureGetDTO;
 import br.com.c137.project.financial.core.multitenancy.tenant.dtos.posts.UnitMeasurePostDTO;
 import br.com.c137.project.financial.core.multitenancy.tenant.dtos.puts.UnitMeasurePutDTO;
-import br.com.c137.project.financial.core.multitenancy.tenant.models.UnitMeasure;
+import br.com.c137.project.financial.core.multitenancy.tenant.models.serviceproduct.UnitMeasure;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
